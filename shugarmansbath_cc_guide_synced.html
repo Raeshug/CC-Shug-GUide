@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shugarman's Bath — Call Center Guide</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f8f9fb;--bg2:#ffffff;--bg3:#f1f3f7;
+  --border:#e2e6ed;--border2:#c8cfd9;
+  --text:#1a1d23;--text2:#4a5568;--text3:#8a93a6;
+  --blue:#2563eb;--blue2:#dbeafe;--blue3:#eff6ff;
+  --teal:#0d9488;--teal2:#ccfbf1;
+  --amber:#d97706;--amber2:#fef3c7;
+  --red:#dc2626;--red2:#fee2e2;
+  --green:#16a34a;--green2:#dcfce7;
+  --purple:#7c3aed;--purple2:#ede9fe;
+}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.6}
+.layout{display:flex;height:100vh}
+.sidebar{width:230px;min-width:230px;background:#f1f3f7;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.sidebar-header{padding:14px 14px 10px;border-bottom:1px solid var(--border)}
+.sidebar-header h1{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text2)}
+.sidebar-header p{font-size:11px;color:var(--text3);margin-top:1px}
+.search-wrap{padding:8px 8px 4px;position:relative}
+.search-wrap input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 8px 5px 26px;font-size:12px;color:var(--text);font-family:inherit;outline:none}
+.search-wrap input:focus{border-color:#2563eb}
+.search-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:13px;pointer-events:none}
+.nav{flex:1;overflow-y:auto;padding:4px 6px 8px}
+.nav::-webkit-scrollbar{width:3px}
+.nav::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.nav-item{display:flex;align-items:center;gap:7px;padding:6px 8px;border-radius:6px;cursor:pointer;color:var(--text2);font-size:12px;transition:all .15s;margin-bottom:1px;user-select:none}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:#dbeafe;color:#2563eb;font-weight:500}
+.nav-item .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:var(--text3)}
+.nav-item.active .dot{background:#2563eb}
+.add-section-btn{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:6px;cursor:pointer;color:var(--text3);font-size:11px;transition:all .15s;margin-top:4px;border:1px dashed var(--border);background:transparent;width:100%}
+.add-section-btn:hover{color:#2563eb;border-color:#2563eb;background:#eff6ff}
+.main{flex:1;overflow-y:auto;background:var(--bg)}
+.main::-webkit-scrollbar{width:4px}
+.main::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.section{display:none;padding:22px 28px 50px;max-width:800px}
+.section.active{display:block}
+.section-header{margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.section-header-text{flex:1}
+.section-header h2{font-size:18px;font-weight:600;color:var(--text)}
+.section-header p{font-size:12px;color:var(--text2);margin-top:3px}
+.header-actions{display:flex;gap:6px;flex-shrink:0}
+.btn-icon{background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--text3);cursor:pointer;padding:5px 8px;font-size:12px;display:flex;align-items:center;gap:4px;transition:all .15s;font-family:inherit}
+.btn-icon:hover{color:var(--text);border-color:var(--border2)}
+.btn-icon.danger:hover{color:var(--red);border-color:var(--red)}
+[data-editable] .section-header h2,[data-editable] .section-header p{border-radius:4px;outline:none}
+[data-editable] .section-header h2:focus,[data-editable] .section-header p:focus{background:#f1f3f7;border:1px solid #2563eb}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden}
+.card-head{padding:10px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
+.card-head:hover{background:var(--bg3)}
+.card-title{font-size:13px;font-weight:500;color:var(--text);flex:1}
+.card-chevron{color:var(--text3);font-size:11px;transition:transform .2s;flex-shrink:0}
+.card.open .card-chevron{transform:rotate(90deg)}
+.card-body-wrap{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.card.open .card-body-wrap{max-height:3000px}
+.card-body{padding:0 14px 14px;font-size:13px;color:var(--text2);line-height:1.7}
+.card-body strong{color:var(--text)}
+[data-editable] .card-title,[data-editable] .card-body{border-radius:3px;outline:none}
+[data-editable] .card-title:focus{background:#f1f3f7;border:1px solid #2563eb;padding:1px 4px;cursor:text}
+[data-editable] .card-body:focus{background:#f1f3f7;border:1px solid #2563eb;border-radius:6px;padding:10px 14px;margin:0 -14px;cursor:text}
+[data-editable] .card-body:empty::before{content:'Click to add content...';color:var(--text3)}
+.add-card-btn{display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:8px;cursor:pointer;color:var(--text3);font-size:12px;border:1px dashed var(--border);background:transparent;width:100%;margin-top:4px;transition:all .15s;font-family:inherit}
+.add-card-btn:hover{color:#2563eb;border-color:#2563eb;background:#eff6ff}
+.card-delete-btn{background:transparent;border:none;color:var(--text3);cursor:pointer;padding:2px 4px;border-radius:4px;font-size:11px;transition:all .15s;display:none;flex-shrink:0}
+.card-delete-btn:hover{color:var(--red)}
+[data-editable] .card-delete-btn{display:flex;align-items:center}
+.edit-bar{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);padding:8px 16px;display:flex;align-items:center;justify-content:space-between;z-index:100;font-size:12px}
+.edit-bar-left{display:flex;align-items:center;gap:10px;color:var(--green)}
+.edit-badge{background:var(--green2);border:1px solid var(--green);color:var(--green);font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600;letter-spacing:.04em}
+.sync-status{font-size:11px;color:var(--text3)}
+.sync-status.saving{color:var(--amber)}
+.sync-status.saved{color:var(--green)}
+.sync-status.error{color:var(--red)}
+.edit-bar-right{display:flex;gap:8px}
+.btn-save{background:var(--green2);border:1px solid var(--green);color:var(--green);border-radius:6px;padding:5px 14px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:500;transition:all .15s}
+.btn-save:hover{background:var(--green);color:#fff}
+.btn-lock{background:transparent;border:1px solid var(--border2);color:var(--text2);border-radius:6px;padding:5px 14px;font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s}
+.btn-lock:hover{color:var(--text);border-color:var(--text)}
+.auth-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center}
+.auth-overlay.open{display:flex}
+.auth-box{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:28px 28px 24px;width:320px}
+.auth-box h3{font-size:15px;font-weight:500;margin-bottom:4px}
+.auth-box p{font-size:12px;color:var(--text2);margin-bottom:16px}
+.auth-box input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:9px 12px;font-size:13px;color:var(--text);font-family:inherit;outline:none;margin-bottom:8px;letter-spacing:.1em}
+.auth-box input:focus{border-color:#2563eb}
+.auth-error{font-size:12px;color:var(--red);margin-bottom:8px;min-height:16px}
+.auth-btns{display:flex;gap:8px;justify-content:flex-end}
+.auth-btns button{background:transparent;border:1px solid var(--border2);border-radius:6px;padding:7px 16px;font-size:12px;color:var(--text2);cursor:pointer;font-family:inherit;transition:all .15s}
+.auth-btns button.primary{background:#eff6ff;border-color:#2563eb;color:#2563eb}
+.auth-btns button:hover{color:var(--text);border-color:var(--text)}
+.auth-btns button.primary:hover{background:var(--blue);color:#fff}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:150;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:22px;width:320px}
+.modal h3{font-size:14px;font-weight:500;margin-bottom:12px}
+.modal input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:13px;color:var(--text);font-family:inherit;outline:none;margin-bottom:8px}
+.modal input:focus{border-color:#2563eb}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
+.modal-btns button{background:transparent;border:1px solid var(--border2);border-radius:6px;padding:6px 14px;font-size:12px;color:var(--text2);cursor:pointer;font-family:inherit;transition:all .15s}
+.modal-btns button.primary{background:#eff6ff;border-color:#2563eb;color:#2563eb}
+.modal-btns button:hover{color:var(--text);border-color:var(--text)}
+.modal-btns button.primary:hover{background:var(--blue);color:#fff}
+.toast{position:fixed;top:16px;right:16px;font-size:12px;padding:7px 14px;border-radius:7px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:300;font-weight:500}
+.toast.green{background:var(--green2);border:1px solid var(--green);color:var(--green)}
+.toast.red{background:var(--red2);border:1px solid var(--red);color:var(--red)}
+.toast.show{opacity:1}
+.lock-trigger{position:fixed;bottom:16px;right:16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:12px;color:var(--text3);cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;z-index:50;font-family:inherit}
+.lock-trigger:hover{color:var(--text);border-color:var(--border2)}
+.loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:400;gap:12px}
+.loading-screen p{font-size:13px;color:var(--text2)}
+.spinner{width:28px;height:28px;border:2px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="loading-screen" id="loading-screen">
+  <div class="spinner"></div>
+  <p>Loading guide...</p>
+</div>
+
+<div class="layout" id="app">
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h1>Shugarman's Bath</h1>
+      <p>Call Center Guide</p>
+    </div>
+    <div class="search-wrap">
+      <svg class="search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="search" placeholder="Search guide..." oninput="doSearch(this.value)">
+    </div>
+    <nav class="nav" id="nav"></nav>
+  </div>
+  <div class="main" id="main"></div>
+</div>
+
+<button class="lock-trigger" id="lock-trigger" onclick="openAuth()">
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+  Mgmt login
+</button>
+
+<div class="edit-bar" id="edit-bar" style="display:none">
+  <div class="edit-bar-left">
+    <span class="edit-badge">EDIT MODE</span>
+    <span class="sync-status" id="sync-status">All changes synced</span>
+  </div>
+  <div class="edit-bar-right">
+    <button class="btn-lock" onclick="lockEditing()">Lock &amp; exit</button>
+    <button class="btn-save" onclick="saveData(true)">Save now</button>
+  </div>
+</div>
+
+<div class="auth-overlay" id="auth-overlay">
+  <div class="auth-box">
+    <h3>Management access</h3>
+    <p>Enter the management password to unlock editing.</p>
+    <input type="password" id="auth-input" placeholder="Password" onkeydown="if(event.key==='Enter')checkAuth()">
+    <div class="auth-error" id="auth-error"></div>
+    <div class="auth-btns">
+      <button onclick="closeAuth()">Cancel</button>
+      <button class="primary" onclick="checkAuth()">Unlock</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <h3>Add section</h3>
+    <input type="text" id="modal-name" placeholder="Section name" onkeydown="if(event.key==='Enter')document.getElementById('modal-sub').focus()">
+    <input type="text" id="modal-sub" placeholder="Short description" onkeydown="if(event.key==='Enter')confirmModal()">
+    <div class="modal-btns">
+      <button onclick="closeModal()">Cancel</button>
+      <button class="primary" onclick="confirmModal()">Add</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ───────────────────────────────────────────────────────────────────
+const BIN_ID    = '6a2353e3da38895dfe8edcb0';
+const API_KEY   = '$2a$10$k8AKisKfHLell4fIfy4nyeV9b8Bl1gB/0kQtkFex2pjvZ5BbvF.BG';
+const MGMT_PASS = 'shug2024';
+const API_BASE  = 'https://api.jsonbin.io/v3/b/' + BIN_ID;
+// ─────────────────────────────────────────────────────────────────────────────
+
+const DOT_COLORS = {blue:'#4a8fff',teal:'#2ecfb0',amber:'#f5a623',red:'#ff5a5a',green:'#3ecf6f',purple:'#9b6dff',gray:'#5c6475'};
+const COLOR_CYCLE = ['blue','teal','amber','red','green','purple','gray'];
+
+let DATA = null;
+let currentSection = null;
+let isEditing = false;
+let saveTimer = null;
+
+// ── JSONBIN API ───────────────────────────────────────────────────────────────
+async function fetchData() {
+  const res = await fetch(API_BASE + '/latest', {
+    headers: { 'X-Master-Key': API_KEY, 'X-Bin-Meta': 'false' }
+  });
+  if (!res.ok) throw new Error('Failed to load');
+  const json = await res.json();
+  return (json && json.sections) ? json : null;
+}
+
+async function pushData(data) {
+  const res = await fetch(API_BASE, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error('Failed to save');
+}
+
+// ── SAVE (debounced) ──────────────────────────────────────────────────────────
+function saveData(immediate) {
+  setSyncStatus('saving', 'Saving...');
+  clearTimeout(saveTimer);
+  const delay = immediate ? 0 : 1500;
+  saveTimer = setTimeout(async () => {
+    try {
+      await pushData(DATA);
+      setSyncStatus('saved', 'All changes synced ✓');
+      showToast('Saved & synced', 'green');
+    } catch(e) {
+      setSyncStatus('error', 'Sync failed — check connection');
+      showToast('Sync failed', 'red');
+    }
+  }, delay);
+}
+
+function setSyncStatus(state, msg) {
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  el.className = 'sync-status ' + state;
+  el.textContent = msg;
+}
+
+// ── DEFAULT DATA ──────────────────────────────────────────────────────────────
+function getDefaultData() {
+  return {sections:[
+    {id:'territories',name:'Territories & Teams',sub:'Rep assignments and team structure',color:'blue',cards:[
+      {id:'c1',title:'SD Territory',open:true,content:'<strong>11 Reps</strong> · 20 runnable appts · Daily Capacity: 30<br><br>Adam Bridges, Damian Figueroa, Erik Jimenez (1), Fil Esquibel, Greg Seki, Norma Bialas, Sean O\'Brien, Susan Conn, Wesam/Wes Murad, Tim, Mat Silva (1)'},
+      {id:'c2',title:'OC Territory',open:false,content:'<strong>6 Available Reps</strong> · 9 runnable appts · Daily Capacity: 30<br><br>Campbell Jones, Jeff Botch, Jennifer Green, Jeff Ladner (1), Miguel Guzman (1), Jon Bullock (1)'},
+      {id:'c3',title:'Swing Reps',open:false,content:'Jennifer: OC → SD<br>Tim: SD → OC'},
+      {id:'c4',title:'Sunday Reps',open:false,content:'<strong>OC:</strong> Botch, Campbell J, Jennifer G, Miguel G (1)<br><strong>SD:</strong> Greg S, Tim D, Mat Silva (1)'},
+      {id:'c5',title:'Consultant Teams',open:false,content:"<strong>Fil's Team:</strong> Adam · Damian · Erik · Jennifer · Wes<br><strong>Sean's Team:</strong> Greg · Norma · Susan · Tim<br><strong>Campbell's Team:</strong> Jeff B · Jeff L. · Miguel · Jon"}
+    ]},
+    {id:'priority',name:'Calling Priority',sub:'Task priority order for daily operations',color:'red',cards:[
+      {id:'c6',title:'Priority Levels',open:true,content:'🔴 <strong>Critical:</strong> Late consultant, Same day cancellation, Same day booking notification<br><br>🟠 <strong>High:</strong> New lead ready for call, Missed call<br><br>🔵 <strong>Medium:</strong> Cancellation for appt over a day out<br><br>⚪ <strong>Low:</strong> Shugboom, Reschedule, Quickpage recording'},
+      {id:'c7',title:'Call Protocol',open:false,content:'• Call twice for brand new inquiries if no answer on first call. Leave VM on 2nd attempt. Send text if no answer.<br>• Call twice if first attempt is STVM<br>• Call twice for scheduled call follow-ups if no answer<br>• Call back if customer PUHU — assume accidental disconnect<br>• Avoid double-calling if customer was already double-called same day'}
+    ]},
+    {id:'account-status',name:'Account Status',sub:'All status definitions and when to use them',color:'amber',cards:[
+      {id:'c8',title:'Status Reference',open:true,content:'<strong style="color:#2563eb">Uncontacted</strong> — New leads, front of queue.<br><br><strong style="color:#2563eb">Live</strong> — Default status. Regular call cadence.<br><br><strong style="color:#dc2626">Dead</strong> — No longer contact. Must include note in on hold/dead reason.<br><br><strong style="color:#0d9488">On Hold</strong> — Won\'t present until selected date.<br><br><strong style="color:#7c3aed">#ATA</strong> — Top priority. Must change back after calling.<br><br><strong style="color:#d97706">Reschedule</strong> — Same as On Hold but for cancelled appointments.<br><br><strong style="color:#16a34a">Won</strong> — Only after booking an appointment.<br><br><strong style="color:#8a93a6">Rehash / Sold</strong> — Not selected by our team.'}
+    ]},
+    {id:'missed-call',name:'Missed Calls',sub:'No consent, DNC, and regular missed call handling',color:'purple',cards:[
+      {id:'c9',title:'Missed Call — No Consent',open:true,content:'• We still have 30 days to call (Dialpad won\'t present after day 30)<br>• If no answer on callback: leave VM and launch <strong>"Missed Call!"</strong> Hatch campaign (at-launch, date = today)<br>• Also use "Missed Call!" for regular customers who called but didn\'t answer after 2 attempts + VM<br>• Change status to Live if not already<br>• If you speak with customer: proceed normally but prioritize getting consent'},
+      {id:'c10',title:'DNC Customer — New Inquiry',open:false,content:'When a previously DNC\'d lead creates a new inquiry, they have forfeited their DNC request.<br><br>1. Handle as a normal lead<br>2. Remove "Not Qualified Reason" = DNC from the Account<br>3. Call twice. If no answer, LVM and launch "New Old Lead" Campaign'},
+      {id:'c11',title:'DNC Response Templates',open:false,content:'<strong>Not interested / No project:</strong><br>"Got it. We\'ve received your request to be removed from our call and marketing list. Your request will be processed promptly. We will no longer reach out to you, unless you reach out first!"<br><br><strong>Upset / Called too much:</strong><br>"Got it! We\'d like to apologize for any miscommunication... We are always looking for ways to improve. I\'ve gone ahead and updated your inquiry, we will no longer reach out to you, unless you reach out first."<br><br><strong>Project on hold / Future potential:</strong><br>"Got it! We appreciate you letting us know... We will no longer reach out to you, unless you reach out first! Should you have any inquiries in the future, Shugarman\'s Bath is here to help."'},
+      {id:'c11b',title:'Bad Number',open:false,content:'• If disco/rings forever/not in service: call twice, use TruePeopleSearch. If 1 digit off, update number. Otherwise launch "Bad Number" campaign immediately.<br>• Give at least 2 business days of calling<br>• <strong>DO NOT DELETE A BAD/WRONG NUMBER</strong><br><br><strong>Standard VM:</strong> "Hi [customer]! This is [your name] with Shugarman\'s Bath! Just wanted to follow-up to see if you were still looking to do your remodel? We\'re here to help, just call us back at [main line]. We look forward to speaking with you!"'}
+    ]},
+    {id:'events',name:'Event Leads',sub:'Contest, Hot Leads, and Pre-Set appointment handling',color:'teal',cards:[
+      {id:'c12',title:'Event Lead Types Overview',open:true,content:'All event leads come in as <strong>#ATA</strong> status — won\'t be auto-dialed by Dialpad.<br><br>3 types: <strong>Contest Only</strong>, <strong>Hot Lead</strong>, <strong>Pre-Set Appointments</strong><br>Pre-Set subtypes: Regular · Confirmed 72+ hrs out · Confirmed within 72 hrs'},
+      {id:'c13',title:'Contest Leads',open:false,content:'Called on <strong>Monday</strong> as part of the Luck Duck contest. Only action needed:<br><br>Step 1: Set Account Status to <strong>$2K</strong>'},
+      {id:'c14',title:'Hot Leads — Day 1 (Do NOT Call)',open:false,content:'<strong>DO NOT CALL Day 1 — they are at the event.</strong><br><br>1. Set Account Status to "On Hold"<br>2. Set On Hold Date to Tomorrow<br>3. Set Text/Email Campaign to "Event Lead"<br>4. Hit the Hatch button'},
+      {id:'c15',title:'Hot Leads — Day 2 (Call, even Sunday)',open:false,content:'1. Dialpad initiates the "On Hold" call<br>2. Leave voicemail — mention the Event and Promoter<br>3. Send "I Just Called" text through Dialpad'},
+      {id:'c15c',title:'LA County Fair — Special Protocol',open:false,content:'• <strong>45min–1hr from OC showroom:</strong> Vet well — no 1-legs, hit on pricing<br>• <strong>1–2hrs from OC Office:</strong> Flag in #LAFubar channel. Must speak with them even if confirmed by LA Events.<br>• If they don\'t answer or view quickpages — we are NOT going out there<br><br><strong>If they answer — Confirm:</strong> Project scope, location/distance, who should be involved, pricing awareness'}
+    ]},
+    {id:'presets',name:'Preset Appointments',sub:'Event presets, confirmed presets, and non-event presets',color:'amber',cards:[
+      {id:'cp1',title:'Identifying Preset Types',open:true,content:'Check Form Questions in Account Timeline.<br><br>• All 3 notes present (60-90, Scope, One Leg) → Confirmed/verified by events team. Regular ST <strong>DOES NOT CALL</strong>.<br>• Within 72 hrs of submission → schedule and mark Confirmed.<br>• Outside 72 hrs → verified. Call for Lucky Duck + regular confirmations.<br>• Only 1-2 notes or none → Regular pre-set, handle as normal.'},
+      {id:'cp2',title:'Regular Pre-Sets — Day 1',open:false,content:'1. Set Account Status to "Won"<br>2. Set On Hold Date to Tomorrow<br>3. Set Text/Email Campaign to "Event Booked Apt"<br>4. Set Campaign Launch Date to Today<br>5. Hit the Hatch button'},
+      {id:'cp3',title:'Confirmed Pre-Sets — 72+ hrs out',open:false,content:'Do NOT call until day before appointment.<br><br>Day 1:<br>1. Set Account Status to "Won"<br>2. Send Quickpage (use modified script for event presets)'},
+      {id:'cp4',title:'Confirmed Pre-Sets — Within 72 hrs',open:false,content:'Do NOT call. Set, verified, and confirmed.<br><br>Day 1:<br>1. Set Account Status to "Won"<br>2. Mark Appointment as Confirmed<br>3. Send Quickpage<br>4. Hit the Hatch button'},
+      {id:'cp5',title:'Non-Event Presets (Heavyset / BCI)',open:false,content:'Always set on calendar for tracking even if customer cancels immediately.<br><br><strong>If they answer:</strong> Verify details and schedule like a regular appointment.<br><br><strong>If no answer:</strong><br>• Fill out all apt info. Use "Must Ask" for gate codes/parking/recording. Use Redfin/Zillow.<br>• Set yourself as booking agent if first to process<br>• Note: "Preset - NEEDS TO BE VERIFIED" in Slack + on hold reason<br>• Set status to "Won" · Launch respective campaign today<br><br><strong>Heavyset extra step:</strong> Click "reschedule" to add to timeblocks.'}
+    ]},
+    {id:'booking',name:'Booking Checklist',sub:'Everything required to properly set an appointment',color:'green',cards:[
+      {id:'c16',title:'Who is the Booking Agent?',open:true,content:'<strong>You ARE the booking agent if:</strong><br>• You spoke to, vetted, and picked the day/time with the lead (first appointment)<br>• You set a preset and filled out ALL info to best of your ability<br><br><strong>Someone else is booking agent if:</strong><br>• Rescheduling a previous booking agent\'s appointment<br>• A consultant booked and all you did was pick a day/time'},
+      {id:'c17',title:'Appointment Notes',open:false,content:'Include: who you spoke to, who\'s going to be there, scope, special instructions.<br><br><em style="color:#0d9488">Example: "Spoke to Mickey Mouse. Meeting with Mickey and his wife, Minnie. Scope includes - Tub to Walk-in Shower Conversion. Special Instruction: Please wear booties/no shoes."</em><br><br><strong>Do NOT include:</strong> "First ones in the door," bad experiences with contractors, anything negative.'},
+      {id:'c18',title:'Sales Manager Notes',open:false,content:'For Jeff Shugarman — used to decide consultant assignments.<br><br>• Multi-Bathroom — wants us to quote more than 1 bathroom<br>• Full Bathroom — interested in more than shower (vanity, floor, toilet)<br>• Hard cut-off time · Spanish speaker only · Requested female/male only rep'},
+      {id:'c19',title:'Account Page Checklist',open:false,content:'✅ Account Status = <strong>Won</strong><br>✅ On Hold Date and On Hold/Dead Reason = <strong>Blank</strong><br>✅ Recording Approval = Yes or No (only "Approved" if lead replied "Y/Yes" to recording verification)<br>✅ Mark uncontacted presets as "Must Ask"'},
+      {id:'c19b',title:'Address & Property Details',open:false,content:'• Territory: T-0006 SD or T-0007 OC<br>• Verified? Geolocated?<br>• Zillow — verify <strong>exact</strong> year home built (NOT the estimate)<br>• Housing type · Years owned · Gate code · Parking instructions · Ownership status · Number of baths'},
+      {id:'c19c',title:'Sales Opportunity Fields',open:false,content:'• How did they hear about us?<br>• Interested in<br>• Number of Wet Areas to Quote (Cali Combo = 2)<br>• Issues · Project Location · Project Scope · Additional Scope · Send Verification Msg'}
+    ]},
+    {id:'confirmations',name:'Confirmations',sub:'When and how to confirm upcoming appointments',color:'blue',cards:[
+      {id:'c20',title:'When Do We Confirm?',open:true,content:'• Confirm Tue/Wed/Thu/Fri/Sat appointments the <strong>day prior</strong><br>• Friday: confirm both Saturday AND Sunday<br>• Saturday: confirm Monday (and leftover Sundays)<br>• Same-day or next-day bookings: mark as confirmed immediately<br>• Holiday: if Tue is a holiday, confirm Wed on Mon — any Wed apt booked Mon = confirmed'},
+      {id:'c21',title:'Confirmation Script',open:false,content:'"Hi [Name]! We\'re going through confirmations today and we have you [and partner] on the calendar for tomorrow at [TIME], at [ADDRESS] if that still works alright for everyone?"<br><br>"Perfect! And it looks like we\'re looking at [SCOPE] as our main focus — does that sound right?"<br><br>"Lastly, we always double-check if there are any other commitments that may have come up that we should be respectful of?"<br><br>"Wonderful! We have you confirmed and look forward to meeting tomorrow!"'},
+      {id:'c22',title:'Process — 1st Call',open:false,content:'<strong>If they answer:</strong> Verify parties, time, address, scope, commitments.<br><br><strong>If no answer:</strong><br>1. LVM (calling to confirm, parties, time, text/email available to respond)<br>2. KRONK<br>3. Move to "Pending Confirmation" column in SHAM or OCAM Hatch board'},
+      {id:'c23',title:'Process — 2nd Call',open:false,content:'Pull up in Hatch, call in Dialpad. If no answer: do NOT leave another VM. Always follow with a hatch call immediately (1-2 combo).<br><br><strong>Sunday:</strong> All unconfirmed Monday appointments must be followed by a hatch call.'},
+      {id:'c23b',title:'Unconfirmed Appointments — Day Of',open:false,content:'• Call to attempt confirmation. If no answer: send text.<br>• Be clear we need to hear back or appointment may not run.<br>• Give a cut-off time: "Please call or text back by 9am to keep your appointment"<br>• Notify consultant — check if they want to try running it anyway<br>• Morning apts (10am): within 3hr window — cancel if no response within 15-30min'}
+    ]},
+    {id:'cancellations',name:'Cancellations',sub:'How to handle and process appointment cancellations',color:'red',cards:[
+      {id:'c24',title:'Cancellation Communication',open:true,content:'<strong>Always assume the reschedule!</strong> "We have your appointment updated, our next available day is __, what does everyone\'s schedule look like?"<br><br>• If they don\'t want to reschedule, ask why<br>• If cancelling via text — CALL FIRST, text back only if no answer<br>• Always follow up with a text even after speaking by phone'},
+      {id:'c25',title:'Cancellation Process',open:false,content:'1. Go to Sales Appointment → click "Cancel"<br>2. Status: Not Ran | Status Detail: Cancelled<br>3. Fill Result Notes — include WHY cancelled, pushback attempts, follow-up date<br>4. Click "Save and Next" → "Take No Action"<br>5. Back on account: change status to <strong>Reschedule</strong><br>6. Set On Hold Date to follow-up date'},
+      {id:'c26',title:'Same Day Cancellations',open:false,content:'1. Immediately notify Adrienne/MGMT via huddle<br>2. Post to #alpha-team-go: "@here [Consultant]\'s 2pm just canceled. Notified DC and @mgmt"<br>3. Notify consultant:<br>   • Call if within 1 hour of consultation<br>   • Text if over 1 hour out'},
+      {id:'c26b',title:'Customer Wants to Cancel a Contract',open:false,content:'<strong>Do NOT transfer to the main office.</strong><br><br>• Let customer know you\'ll submit their request to administration and are logging the call<br>• Submit a Customer Service Request — allows admin/Jeff/rep to potentially save the sale'}
+    ]},
+    {id:'late-noshow',name:'Late / No-Show',sub:'Handling late consultants and missed appointments',color:'red',cards:[
+      {id:'c27',title:'Late Consultant — Process',open:true,content:'1. Send <strong>THNKS first</strong> before calling<br>2. Call lead (apologize, apologize, apologize, end with apology)<br>   • If answers: give ETA, mention THNKS, ask text or call preference for updates<br>   • If no answer (2 attempts): send text using "Late Consultant Notification" suggested response<br>3. Update the consultant<br>4. Post to #alpha-team-go: who\'s late, how late, is lead notified?<br>5. Write the Late Report'},
+      {id:'c28',title:'THNKS Key',open:false,content:'<strong>Always send THNKS BEFORE calling.</strong><br><br>1–15 mins → Sorry A Latte ($12.43)<br>16–35 mins → Lunch from Your Favorite Spot ($30)<br>36–45 mins → Lunch from Your Favorite Spot ($48)<br>46 min–1hr+ → Lunch from Your Favorite Spot ($60)<br>2nd instance → Double the amount<br><br><strong>Reason codes:</strong> Consultant Late · Consultant Late Sale · Mgmt Error · Overbooking · ST Error · Unforeseen CCO · TYE'},
+      {id:'c29',title:'Consultant Being No-Showed',open:false,content:'1. Call lead immediately — 2 Dialpad attempts + 1 Hatch call<br>2. If no answer: leave VM that consultant has arrived. Send "No Show" text from SHAM/OCAM.<br>3. Update the consultant<br>4. Write Slack chatter note<br>5. Post to #alpha-team-go with @here'},
+      {id:'c30',title:'Consultant No-Showing the Appointment',open:false,content:'1. Verify appointment time/day is correct<br>2. Check consultant\'s Hatch messages for late notifications<br>3. Apologize to customer — put on hold, do NOT text back yet<br>4. Call consultant — confirm on the way and at correct address (city & zip)<br>5. Get back on with lead — notify of findings/ETA<br>6. Send THNKS · Update Late Report · Notify MGMT + @here'}
+    ]},
+    {id:'referral',name:'Referral Program',sub:'$250 flat gift card per verified referral',color:'green',cards:[
+      {id:'cr1',title:'Referral Overview',open:true,content:'<strong>Gift Card Value:</strong> $250 flat per verified referral<br><strong>Owner:</strong> ST (marking) + Judith (verification) + Helia (gift card fulfillment)'},
+      {id:'cr2',title:'Step 1 — Booking (Scheduling Team)',open:false,content:'<strong>Do not skip — this triggers the entire downstream workflow.</strong><br><br>1. Check the <strong>Referral checkbox</strong> on the Sales Opportunity (SO) in i360<br>2. If referrer\'s name is known: fill in the <strong>Referred By</strong> field<br>3. If name not available: leave blank — Ops will follow up<br>4. Assign the Design Consultant who did the original project'}
+    ]},
+    {id:'repeat',name:'Repeat / Sold Customers',sub:'Handling returning customers',color:'purple',cards:[
+      {id:'crs1',title:'Rule #1: Assign the Previous Consultant',open:true,content:'"Looks like [consultant] helped you last time, so I will make sure they are assigned again."<br><br><strong>Exceptions (notify MGMT):</strong><br>• Customer specifically says they don\'t want the same consultant<br>• Customer wants a day the consultant isn\'t available<br>• Consultant is on vacation or unavailable multiple days'},
+      {id:'crs2',title:'Booking Process for Repeat Customers',open:false,content:'• Check DayBack — ensure consultant doesn\'t have day off or another apt at that time<br>• If no existing inquiry: create new SO using SD-Other or OC-Other<br>• Check the <strong>Repeat Customer</strong> checkbox under Relationships<br>• In apt notes: "Repeat Customer - Assign to previous consultant [Name]"'}
+    ]},
+    {id:'csr',name:'Customer Service',sub:'Service requests, transfers, and special call types',color:'blue',cards:[
+      {id:'ccs1',title:'Customer Calls In — Script',open:true,content:'"Got it, I actually work in the scheduling department here, for quotes and consultations. I\'m gonna go ahead and get you transferred over to our main office. In case we get disconnected, is this a good number to reach you at? I\'m going to put you on a brief hold — if I can\'t get a hold of them, I\'ll come straight back to you and put in a service request for them to call you right back."<br><br><strong>Do NOT leave customer on hold 5+ minutes.</strong>'},
+      {id:'ccs2',title:'Do NOT Transfer — Ever',open:false,content:'• Customers requesting to cancel their contracts<br>• Telemarketers — even if they say they know Chase<br>• Non-customers'},
+      {id:'ccs3',title:'Apex Transfer Calls (925-xxx numbers)',open:false,content:'Live transfer from website chat. Lead in i360 is usually "Apex Transfer" — not the actual customer.<br><br>1. Collect customer\'s phone number<br>2. Look them up in i360<br>3. After call: ensure it\'s linked to customer\'s account, not Apex account'},
+      {id:'ccs4',title:'BCI Transfer Calls (847-xxx numbers)',open:false,content:'Live transfer from Bath Planet/BCI corporate call center.<br><br>• Always say <strong>"dealer"</strong> when asked dealer or answering service<br>• Get customer\'s number ASAP — verify no recent appointment exists<br>• Tell customer they\'re reaching <strong>SHUGARMAN\'S BATH</strong> — use linktree phrasing<br>• Change status to "Won" while booking to prevent other agents from grabbing the lead'}
+    ]},
+    {id:'nogo',name:'No-Go Zipcodes',sub:'Areas we do not service',color:'red',cards:[
+      {id:'cng1',title:'No-Go Areas — Never Book',open:true,content:'<strong style="color:#dc2626">92101</strong> — All Downtown San Diego Condos / Apartments<br><strong style="color:#dc2626">92637</strong> — Laguna Woods<br><strong style="color:#dc2626">90740</strong> — Seal Beach'},
+      {id:'cng2',title:'No-Go Cancellation Steps',open:false,content:'1. Call the lead — if no answer: try hatch call, then leave VM + hatch text from SHAM/OCAM<br>2. Cancel the appointment<br>3. Change Account Status to Dead<br>4. Update Not Qualified Reason to "Out of Area"<br>5. Write Slack chatter notes<br><br><strong>Preset error:</strong> Create an appointment first if none exists — for record keeping.'},
+      {id:'cng3',title:'No-Go Cancellation Text',open:false,content:'"Hello [Lead name]! This is [Your Name] with Shugarman\'s Bath. I just tried calling you back in regards to the appointment you set with us for [DAY / TIME]. I apologize, the zipcode your property is located in is currently not in our service area and we unfortunately can\'t accommodate your upcoming appointment. We apologize for any confusion. We hope all the best with your project!"'},
+      {id:'cng4',title:'Approved Riverside / IE Zipcodes',open:false,content:'Temecula: 92590–92593 · Murrieta: 92562–92564 · Wildomar: 92595<br>Menifee: 92584–92587, 92596 · Lake Elsinore: 92530–92532 · Canyon Lake: 92587<br>Corona: 92877–92883<br>Riverside: 92501, 92503–92509, 92521–92522'}
+    ]},
+    {id:'policies',name:'Policies & Misc',sub:'Dead leads, serial cancellers, errors, bounties, and more',color:'gray',cards:[
+      {id:'cp1b',title:'Dead Lead — Mark Dead',open:true,content:'✅ Already started work with another company (if just signed, call a few more days first)<br>✅ 90NC — 90 days no contact<br>✅ Not a good fit: half bath, new build, free standing tub<br>✅ Very upset and pursuing will result in a bad review'},
+      {id:'cp2b',title:'Dead Lead — Keep Alive',open:false,content:'"Not interested" — too vague. Ask why.<br>"Went with somebody else" — best leads to pursue. They have 3-5 days to cancel their contract.<br>Tile/GC/price — educate them on why we\'re the best.<br>Timeframe/1leg/60-90 — needs extra education.<br><br><strong>Went with someone else cadence:</strong> 5 days after → every other week check-ins. Not interested twice → dead.'},
+      {id:'cp3b',title:'Serial Cancellers (3+ cancellations)',open:false,content:'Tell MGMT first for confirmation.<br>• Only book Same Day or Next Day<br>• If unavailable: note desired date, schedule Slack message in #alpha-team-assemble<br><br><strong>Pre-written message:</strong> "We will be happy to accommodate, but due to this being the third cancellation, we will have to touch base closer to your desired date prior to reserving the appointment. Would you like to try for later this week, or would next week work better?"'},
+      {id:'cp4b',title:'Error Timeframe Protocol',open:false,content:'• Error found after 1 hour → automatic error<br>• Error found by MGMT within 1 hour → mercy notification sent<br>• After mercy notification: 5 min to resolve or communicate<br>• No response after 5 min → automatic error<br>• Claimed bounty → no timeframe, you said you\'re done'},
+      {id:'cp5b',title:'Bounty Rules',open:false,content:'Can claim for same-day or next-day appointments only.<br>Only claim once <strong>completely finished</strong> — voided if claimed early.<br>Do not claim if we canceled and rescheduled for next day.<br>Inquiry over 6 months old → reach out to MGMT for bounty.'},
+      {id:'cp6b',title:'Text Communication Rules',open:false,content:'• Professional and positive (use "!" and emojis over ".")<br>• Always include a "?" to engage a response<br>• <strong>NEVER leave the customer on read</strong><br>• Use scheduled texts for promised follow-up times<br>• Always tag your name when texting consultants & Jeff Shugarman<br><br><strong>First text options:</strong> "I Just Called" (default) · "I Just Called Same Day" · "I Just Called Lead Agg" · "I Just Called Sat/Sun"'},
+      {id:'cp7b',title:'Common Customer Situations',open:false,content:'<strong>Mobile Homes:</strong> Yes to manufactured homes in parks. No to travel trailers / fifth wheels.<br><br><strong>Tub Types:</strong><br>• Free standing tubs → No<br>• Standalone tubs (attached to walls) → Yes<br>• Corner/garden tubs → No 1:1, but can replace with regular tub<br>• Walk-in tubs → No longer<br>• Jetted tubs → Yes but nuanced — consultant helps find the tub<br>• Corner showers → Yes<br><br><strong>No Owner Available:</strong> Always need owner name + number + email. Won\'t provide → red flag. Commercial properties → pass to Jeff Shugarman first.'}
+    ]}
+  ]};
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function uid() { return 's' + Math.random().toString(36).slice(2,8); }
+
+function render() {
+  renderNav();
+  renderMain();
+  const target = currentSection || (DATA.sections[0] && DATA.sections[0].id);
+  if (target) showSection(target);
+  if (isEditing) { makeContentEditable(true); showEditControls(true); }
+}
+
+function renderNav() {
+  const nav = document.getElementById('nav');
+  let html = DATA.sections.map(s => `
+    <div class="nav-item" id="nav-${s.id}" onclick="showSection('${s.id}')">
+      <span class="dot" style="background:${DOT_COLORS[s.color]||DOT_COLORS.gray}"></span>
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(s.name)}</span>
+    </div>
+  `).join('');
+  if (isEditing) {
+    html += `<button class="add-section-btn" onclick="openAddSectionModal()">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+      Add section
+    </button>`;
+  }
+  nav.innerHTML = html;
+}
+
+function renderMain() {
+  document.getElementById('main').innerHTML = DATA.sections.map(s => `
+    <div class="section" id="section-${s.id}">
+      <div class="section-header">
+        <div class="section-header-text">
+          <h2 contenteditable="false" spellcheck="false" onblur="updateSection('${s.id}','name',this.textContent.trim())">${escHtml(s.name)}</h2>
+          <p contenteditable="false" spellcheck="false" onblur="updateSection('${s.id}','sub',this.textContent.trim())">${escHtml(s.sub)}</p>
+        </div>
+        <div class="header-actions" id="hdr-${s.id}" style="display:none">
+          <button class="btn-icon" onclick="cycleColor('${s.id}')" title="Change color">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="10.5" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/><circle cx="6.5" cy="12.5" r="2.5"/><path d="M12 22c-4.4 0-8-3.6-8-8 0-1.4.4-2.8 1-4"/><path d="M20.3 8.1c.4 1 .7 2.1.7 3.2 0 3.5-2.3 6.5-5.5 7.6"/></svg>
+          </button>
+          <button class="btn-icon danger" onclick="deleteSection('${s.id}')" title="Delete section">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+          </button>
+        </div>
+      </div>
+      ${s.cards.map(c => renderCard(s.id, c)).join('')}
+      <button class="add-card-btn" id="add-${s.id}" style="display:none" onclick="addCard('${s.id}')">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+        Add card
+      </button>
+    </div>
+  `).join('');
+}
+
+function renderCard(sid, c) {
+  return `<div class="card ${c.open?'open':''}" id="card-${c.id}">
+    <div class="card-head" onclick="toggleCard(event,'${c.id}')">
+      <span class="card-title" contenteditable="false" spellcheck="false"
+        onclick="event.stopPropagation()"
+        onblur="updateCard('${sid}','${c.id}','title',this.textContent.trim())">${escHtml(c.title)}</span>
+      <button class="card-delete-btn" onclick="event.stopPropagation();deleteCard('${sid}','${c.id}')">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+      </button>
+      <span class="card-chevron">›</span>
+    </div>
+    <div class="card-body-wrap">
+      <div class="card-body" contenteditable="false" spellcheck="false"
+        onblur="updateCard('${sid}','${c.id}','content',this.innerHTML.trim())">${c.content||''}</div>
+    </div>
+  </div>`;
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showSection(id) {
+  currentSection = id;
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const sec = document.getElementById('section-'+id);
+  const nav = document.getElementById('nav-'+id);
+  if (sec) sec.classList.add('active');
+  if (nav) nav.classList.add('active');
+}
+
+function toggleCard(e, cid) {
+  if (isEditing && e.target.closest('.card-title,.card-delete-btn')) return;
+  const card = document.getElementById('card-'+cid);
+  if (!card) return;
+  const isOpen = card.classList.toggle('open');
+  DATA.sections.forEach(s => { const c=s.cards.find(x=>x.id===cid); if(c) c.open=isOpen; });
+  if (isEditing) saveData();
+}
+
+function updateSection(sid, field, val) {
+  const s = DATA.sections.find(x=>x.id===sid);
+  if (s && s[field]!==val) {
+    s[field]=val;
+    const span = document.querySelector(`#nav-${sid} span:last-child`);
+    if (span && field==='name') span.textContent=val;
+    saveData();
+  }
+}
+
+function updateCard(sid, cid, field, val) {
+  const s = DATA.sections.find(x=>x.id===sid);
+  if (!s) return;
+  const c = s.cards.find(x=>x.id===cid);
+  if (c && c[field]!==val) { c[field]=val; saveData(); }
+}
+
+function deleteSection(sid) {
+  if (!confirm('Delete this entire section and all its cards?')) return;
+  DATA.sections = DATA.sections.filter(x=>x.id!==sid);
+  if (currentSection===sid) currentSection = DATA.sections[0]?.id||null;
+  render();
+  saveData(true);
+}
+
+function deleteCard(sid, cid) {
+  const s = DATA.sections.find(x=>x.id===sid);
+  if (!s) return;
+  s.cards = s.cards.filter(x=>x.id!==cid);
+  document.getElementById('card-'+cid)?.remove();
+  saveData();
+}
+
+function addCard(sid) {
+  const s = DATA.sections.find(x=>x.id===sid);
+  if (!s) return;
+  const c = {id:uid(), title:'New card', open:true, content:''};
+  s.cards.push(c);
+  const addBtn = document.getElementById('add-'+sid);
+  const div = document.createElement('div');
+  div.innerHTML = renderCard(sid, c);
+  const newCard = div.firstElementChild;
+  addBtn.parentElement.insertBefore(newCard, addBtn);
+  const titleEl = newCard.querySelector('.card-title');
+  if (titleEl) { titleEl.contentEditable='true'; titleEl.focus(); selectAll(titleEl); }
+  saveData();
+}
+
+function selectAll(el) {
+  const r=document.createRange(); r.selectNodeContents(el);
+  const s=window.getSelection(); s.removeAllRanges(); s.addRange(r);
+}
+
+function cycleColor(sid) {
+  const s = DATA.sections.find(x=>x.id===sid);
+  if (!s) return;
+  s.color = COLOR_CYCLE[(COLOR_CYCLE.indexOf(s.color)+1)%COLOR_CYCLE.length];
+  const dot = document.querySelector(`#nav-${sid} .dot`);
+  if (dot) dot.style.background = DOT_COLORS[s.color];
+  saveData();
+}
+
+function makeContentEditable(on) {
+  document.querySelectorAll('.section-header h2,.section-header p,.card-title,.card-body').forEach(el => {
+    el.contentEditable = on ? 'true' : 'false';
+  });
+}
+
+function showEditControls(show) {
+  document.querySelectorAll('[id^="hdr-"]').forEach(el => el.style.display = show?'flex':'none');
+  document.querySelectorAll('[id^="add-"]').forEach(el => el.style.display = show?'flex':'none');
+  renderNav();
+}
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+function openAuth() {
+  document.getElementById('auth-input').value='';
+  document.getElementById('auth-error').textContent='';
+  document.getElementById('auth-overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('auth-input').focus(),100);
+}
+function closeAuth() { document.getElementById('auth-overlay').classList.remove('open'); }
+function checkAuth() {
+  if (document.getElementById('auth-input').value===MGMT_PASS) {
+    closeAuth(); enableEditing();
+  } else {
+    document.getElementById('auth-error').textContent='Incorrect password. Try again.';
+    document.getElementById('auth-input').value='';
+    document.getElementById('auth-input').focus();
+  }
+}
+function enableEditing() {
+  isEditing=true;
+  document.getElementById('app').setAttribute('data-editable','');
+  document.getElementById('edit-bar').style.display='flex';
+  document.getElementById('lock-trigger').style.display='none';
+  makeContentEditable(true);
+  showEditControls(true);
+  showToast('Edit mode unlocked','green');
+}
+function lockEditing() {
+  isEditing=false;
+  document.getElementById('app').removeAttribute('data-editable');
+  document.getElementById('edit-bar').style.display='none';
+  document.getElementById('lock-trigger').style.display='flex';
+  makeContentEditable(false);
+  showEditControls(false);
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function openAddSectionModal() {
+  document.getElementById('modal-name').value='';
+  document.getElementById('modal-sub').value='';
+  document.getElementById('modal-overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('modal-name').focus(),100);
+}
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+function confirmModal() {
+  const name=document.getElementById('modal-name').value.trim();
+  const sub=document.getElementById('modal-sub').value.trim();
+  if (!name) return;
+  const s={id:uid(),name,sub:sub||'No description',color:'blue',cards:[]};
+  DATA.sections.push(s);
+  render();
+  showSection(s.id);
+  saveData(true);
+  closeModal();
+}
+
+// ── SEARCH ────────────────────────────────────────────────────────────────────
+function doSearch(q) {
+  q=q.toLowerCase().trim();
+  if (!q) { document.querySelectorAll('.nav-item').forEach(n=>n.style.display=''); return; }
+  let first=null;
+  DATA.sections.forEach(s => {
+    const text=(s.name+' '+s.sub+' '+s.cards.map(c=>c.title+' '+c.content).join(' ')).toLowerCase();
+    const nav=document.getElementById('nav-'+s.id);
+    const matches=text.includes(q);
+    if (nav) nav.style.display=matches?'':'none';
+    if (matches&&!first) first=s.id;
+  });
+  if (first) showSection(first);
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+function showToast(msg, type='green') {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast '+type;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ── KEYBOARD ──────────────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key==='Escape') { closeModal(); closeAuth(); }
+});
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+(async function init() {
+  try {
+    const remote = await fetchData();
+    DATA = (remote && remote.sections && remote.sections.length) ? remote : getDefaultData();
+    if (!remote || !remote.sections || !remote.sections.length) {
+      await pushData(DATA);
+    }
+  } catch(e) {
+    DATA = getDefaultData();
+    showToast('Could not connect — showing default data','red');
+  }
+  document.getElementById('loading-screen').style.display='none';
+  render();
+})();
+</script>
+</body>
+</html>
