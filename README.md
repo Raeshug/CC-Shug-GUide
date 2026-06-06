@@ -1,2 +1,2 @@
-# CC-Shug-GUide
+# CC-Shug-Guide
 Shug CC Guide
